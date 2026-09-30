@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="CEJ IO"/>
+<meta name="theme-color" content="#0b1220"/>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Cobranza Extrajudicial IO</title>
+<style>
+:root{--bg:#0b1220;--surface:#111c2d;--surface2:#172236;--border:#1e3050;--accent:#2dd4bf;--accent2:#f59e0b;--text:#e2eaf5;--muted:#64748b;--danger:#f43f5e;--success:#10b981;--font:Calibri,'Gill Sans',sans-serif;--mono:'Courier New',Courier,monospace;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+body{display:flex;flex-direction:column;min-height:100dvh}
+#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px}
+.login-logo{width:72px;height:72px;background:linear-gradient(135deg,var(--accent),#0ea5e9);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:24px}
+.login-title{font-size:22px;font-weight:700;margin-bottom:6px;text-align:center}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px;text-align:center}
+.login-input{width:100%;max-width:300px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--text);font-family:var(--font);font-size:16px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:2px}
+.login-input:focus{border-color:var(--accent)}
+.btn-login{width:100%;max-width:300px;background:var(--accent);border:none;border-radius:10px;padding:14px;color:#0b1220;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer}
+.btn-login:disabled{opacity:.5}
+.login-error{margin-top:14px;color:var(--danger);font-size:13px;text-align:center;display:none}
+.login-user{position:fixed;bottom:calc(16px + var(--safe-bottom));right:16px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:6px 12px 6px 8px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);z-index:150;cursor:pointer}
+.login-user .avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;color:#0b1220}
+#appHeader{padding:calc(14px + var(--safe-top)) 18px 14px;background:#0b1220;border-bottom:2px solid var(--accent);box-shadow:0 2px 20px rgba(0,0,0,.5);z-index:100}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#0ea5e9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-size:14px;font-weight:700;line-height:1.2}.logo-text span{color:var(--accent)}
+.rolbadge{font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:100px;margin-left:4px;vertical-align:middle}
+.rolbadge.edit{background:rgba(16,185,129,.15);color:var(--success)}.rolbadge.read{background:rgba(245,158,11,.15);color:var(--accent2)}
+.header-actions{display:flex;gap:8px}
+.btn-icon{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px 12px;font-size:15px;cursor:pointer;font-family:var(--font)}
+.btn-icon.btn-add{background:var(--accent);color:#0b1220;border-color:var(--accent);font-weight:700;font-size:18px}
+.search-wrap{position:relative}.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+#searchInput{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 11px 11px 36px;color:var(--text);font-family:var(--font);font-size:14px;outline:none}
+#searchInput:focus{border-color:var(--accent)}#searchInput::placeholder{color:var(--muted)}
+#filterBars{background:#0b1220;border-bottom:1px solid var(--border);z-index:99}
+.bar-row{display:flex;gap:10px;padding:12px 16px;overflow-x:auto;scrollbar-width:none}.bar-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);user-select:none;-webkit-user-select:none}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.chip .n{font-size:11px;font-weight:800;background:rgba(0,0,0,.2);padding:1px 7px;border-radius:100px;min-width:24px;text-align:center}
+.chip.active{background:var(--cc,var(--accent));border-color:var(--cc,var(--accent));color:#0b1220}
+.abog-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;white-space:nowrap;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted)}
+.abog-btn .n{font-size:10px;font-weight:800;background:rgba(0,0,0,.2);padding:1px 6px;border-radius:100px;min-width:20px;text-align:center}
+.abog-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(45,212,191,.07)}
+main{flex:1;padding:14px 14px calc(60px + var(--safe-bottom));overflow-y:auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:10px;cursor:pointer;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--sc,var(--muted))}
+.card:active{opacity:.75}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.card-name{font-size:15px;font-weight:700;flex:1;padding-right:8px;line-height:1.3}
+.sbadge{flex-shrink:0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.5px}
+.card-sub{font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:6px;line-height:1.5}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+.tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.tag.on{color:var(--accent);border-color:rgba(45,212,191,.3);background:rgba(45,212,191,.07)}
+.tag.warn{color:var(--danger);border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.08)}
+.card-foot{margin-top:9px;padding-top:9px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cfoot-l{font-size:12px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cfecha{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.state-box{text-align:center;padding:60px 20px;color:var(--muted)}.state-box .icon{font-size:44px;margin-bottom:14px}
+.state-box h3{font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px}.state-box p{font-size:13px;line-height:1.6}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.sheet{background:var(--surface);border-radius:22px 22px 0 0;padding:22px 18px calc(22px + var(--safe-bottom));width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1)}
+.overlay.open .sheet{transform:translateY(0)}
+.handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+@media(min-width:768px){.overlay{align-items:center}.sheet{max-width:720px;margin:0 auto;border-radius:18px;max-height:88dvh;transform:translateY(20px)}.overlay.open .sheet{transform:translateY(0)}.handle{display:none}}
+.sheet-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.sheet-sub{font-size:12px;font-family:var(--mono);color:var(--muted);margin-bottom:6px}
+.sheet-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:12px}
+.sheet-actions{display:flex;gap:8px;margin-bottom:18px}
+.btn-edit{flex:1;background:var(--accent);border:none;border-radius:10px;padding:11px;color:#0b1220;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer}
+.sec-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;margin-top:18px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.di{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px}.di.full{grid-column:1/-1}
+.di-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.di-val{font-size:13px;font-weight:600;color:var(--text);word-break:break-word;line-height:1.4;white-space:pre-wrap}
+.di-val.ac{color:var(--accent);font-family:var(--mono)}.di-val.mu{color:var(--muted);font-size:12px}
+.btn-close{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px;color:var(--muted);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;margin-top:18px}
+.form-title{font-size:18px;font-weight:700;margin-bottom:4px}.form-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.form-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:18px 0 10px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:5px}.form-group.full{grid-column:1/-1}
+.form-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.form-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:100%;min-height:44px;-webkit-appearance:none;appearance:none}
+.form-input:focus{border-color:var(--accent)}.form-input[type=date]{color-scheme:dark}
+.btn-save{width:100%;background:var(--accent);border:none;border-radius:10px;padding:14px;color:#0b1220;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;margin-top:20px;margin-bottom:10px}
+.btn-save:disabled{opacity:.5}
+.toast{position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:12px 24px;border-radius:100px;font-size:14px;font-weight:700;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}.toast.error{background:var(--danger)}
+.chart-title{font-size:17px;font-weight:700;margin-bottom:4px}.chart-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.brow{display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer}
+.blabel{width:120px;font-size:12px;font-weight:700;color:#94a3b8;text-align:right;flex-shrink:0}
+.btrack{flex:1;background:var(--surface2);border-radius:7px;height:30px;position:relative;overflow:hidden}
+.bfill{height:100%;border-radius:7px}.bval{font-size:14px;font-weight:700;width:40px}
+</style></head><body>
+
+<div id="loginScreen">
+  <div class="login-logo">📨</div>
+  <div class="login-title">Cobranza Extrajudicial IO</div>
+  <div class="login-sub">Ingresa tu clave de acceso</div>
+  <input type="password" id="loginPwd" class="login-input" placeholder="Clave de acceso" autocomplete="current-password"/>
+  <button class="btn-login" id="btnLogin">Ingresar</button>
+  <div class="login-error" id="loginError">Clave incorrecta.</div>
+</div>
+<div class="login-user" id="userBadge" style="display:none" title="Cerrar sesión"><div class="avatar">🔒</div><span>Cerrar sesión</span></div>
+
+<div id="appHeader">
+  <div class="header-top">
+    <div class="logo"><div class="logo-icon">📨</div><div class="logo-text">COBRANZA<span class="rolbadge" id="rolBadge"></span><br><span>EXTRAJUDICIAL IO</span></div></div>
+    <div class="header-actions">
+      <button class="btn-icon" id="btnReload">🔄</button>
+      <button class="btn-icon btn-add" id="btnNuevo">＋</button>
+      <button class="btn-icon" id="btnChart">📊</button>
+    </div>
+  </div>
+  <div class="search-wrap"><span class="search-icon">🔍</span><input type="search" id="searchInput" placeholder="Buscar deudor, RUT, cuenta, N° identificador…"/></div>
+</div>
+<div id="filterBars"><div class="bar-row" id="estadoBar"></div><div class="bar-row" id="encBar"></div></div>
+<main id="mainContent"></main>
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="detailOverlay"><div class="sheet"><div class="handle"></div><div id="detailContent"></div><button class="btn-close" id="btnCloseDetail">Cerrar</button></div></div>
+
+<div class="overlay" id="formOverlay"><div class="sheet"><div class="handle"></div>
+  <div class="form-title" id="formTitle">Nuevo deudor</div><div class="form-sub" id="formSub"></div>
+  <div class="form-section">Deudor</div>
+  <div class="form-grid">
+    <div class="form-group full"><label class="form-label">Deudor</label><input class="form-input" id="f_deudor"/></div>
+    <div class="form-group"><label class="form-label">RUT</label><input class="form-input" id="f_rut" placeholder="12.345.678-9"/></div>
+    <div class="form-group"><label class="form-label">N° Identificador</label><input class="form-input" id="f_nid"/></div>
+    <div class="form-group full"><label class="form-label">Cuenta relacionada</label><input class="form-input" id="f_cuenta"/></div>
+    <div class="form-group"><label class="form-label">Fecha asignación</label><input class="form-input" type="date" id="f_asig"/></div>
+    <div class="form-group"><label class="form-label">Encargado</label><input class="form-input" id="f_encargado" list="dlEnc"/><datalist id="dlEnc"></datalist></div>
+  </div>
+  <div class="form-section">Gestiones</div>
+  <div class="form-grid">
+    <div class="form-group"><label class="form-label">Contacto mail</label><input class="form-input" type="date" id="f_mail"/></div>
+    <div class="form-group"><label class="form-label">Contacto telefónico</label><input class="form-input" type="date" id="f_tel"/></div>
+    <div class="form-group"><label class="form-label">Contacto WhatsApp</label><input class="form-input" type="date" id="f_wsp"/></div>
+    <div class="form-group"><label class="form-label">Despacho carta</label><input class="form-input" type="date" id="f_carta"/></div>
+  </div>
+  <div class="form-section">Observaciones e instrucción</div>
+  <div class="form-grid">
+    <div class="form-group full"><label class="form-label">Observaciones <small style="text-transform:none">(la fecha se actualiza sola al cambiar el texto)</small></label><textarea class="form-input" id="f_obs" rows="3"></textarea></div>
+    <div class="form-group full"><label class="form-label">Instrucción <small style="text-transform:none">(la fecha se actualiza sola al cambiar el texto)</small></label><textarea class="form-input" id="f_instr" rows="3"></textarea></div>
+    <input type="hidden" id="f_fobs"/><input type="hidden" id="f_finstr"/>
+  </div>
+  <button class="btn-save" id="btnSaveForm">💾 Guardar</button>
+  <button class="btn-close" id="btnCloseForm">Cancelar</button>
+</div></div>
+
+<div class="overlay" id="chartOverlay"><div class="sheet"><div class="handle"></div>
+  <div class="chart-title">CARTERA AL <span id="chartFecha"></span></div><div class="chart-sub" id="chartTotal"></div>
+  <div id="chartBars"></div><button class="btn-close" id="btnCloseChart">Cerrar</button>
+</div></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1DI0RyfiPZChfzx50T4SLR1y_qaorAFl0HtErXMU5EVeFPdwd-3s3P4dhMMWyl7xvBw/exec';
+const DIAS_ALERTA = 30;
+
+let clave = '', rol = '', allRows = [], selEstados = new Set(), selAlerta = false, selEnc = new Set(), editingRow = null;
+
+const ESTADOS = {
+  'Sin gestión':     {color:'#f43f5e', bg:'rgba(244,63,94,0.12)'},
+  'En gestión':      {color:'#f59e0b', bg:'rgba(245,158,11,0.12)'},
+  'Con instrucción': {color:'#10b981', bg:'rgba(16,185,129,0.12)'},
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmtF = f => { if(!f) return ''; const p=String(f).substring(0,10).split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : f; };
+const toD = f => f ? new Date(f+'T12:00:00') : null;
+
+function mapRow(r){
+  const v = r.v, o = {row:r.row, deudor:v[0], rut:v[1], cuenta:v[2], nid:v[3], f_asig:v[4], f_mail:v[5], f_tel:v[6], f_wsp:v[7], f_carta:v[8], f_obs:v[9], obs:v[10], instr:v[11], f_instr:v[12], encargado:v[13]};
+  o.estado = o.instr.trim() ? 'Con instrucción' : (o.f_mail||o.f_tel||o.f_wsp||o.f_carta) ? 'En gestión' : 'Sin gestión';
+  const fechas = [o.f_asig,o.f_mail,o.f_tel,o.f_wsp,o.f_carta,o.f_obs].filter(Boolean).sort();
+  const ult = fechas.length ? toD(fechas[fechas.length-1]) : null;
+  o.dias = ult ? Math.floor((Date.now()-ult.getTime())/86400000) : null;
+  o.alerta = o.estado!=='Con instrucción' && o.dias!==null && o.dias>DIAS_ALERTA;
+  return o;
+}
+
+/* AUTH */
+function showLogin(){ $('loginScreen').style.display='flex'; ['appHeader','filterBars'].forEach(i=>$(i).style.display='none'); document.querySelector('main').style.display='none'; $('userBadge').style.display='none'; }
+function showApp(){
+  $('loginScreen').style.display='none'; $('appHeader').style.display=''; $('filterBars').style.display=''; document.querySelector('main').style.display=''; $('userBadge').style.display='flex';
+  $('btnNuevo').style.display = rol==='edit' ? '' : 'none';
+  $('rolBadge').textContent = rol==='edit' ? 'EDICIÓN' : 'LECTURA'; $('rolBadge').className = 'rolbadge '+rol;
+  loadData();
+}
+function logout(){ try{sessionStorage.removeItem('cej_clave');sessionStorage.removeItem('cej_rol');}catch(e){} clave=''; rol=''; showLogin(); }
+async function api(params){
+  if(SCRIPT_URL.indexOf('PEGAR')===0) throw new Error('Falta configurar SCRIPT_URL');
+  const res = await fetch(SCRIPT_URL+'?'+new URLSearchParams(params));
+  return res.json();
+}
+$('btnLogin').addEventListener('click', async ()=>{
+  const k = $('loginPwd').value.trim(); if(!k) return;
+  const btn=$('btnLogin'), err=$('loginError'); btn.disabled=true; btn.textContent='Verificando…'; err.style.display='none';
+  try{
+    const j = await api({action:'login', clave:k});
+    if(j.ok){ clave=k; rol=j.rol; try{sessionStorage.setItem('cej_clave',k);sessionStorage.setItem('cej_rol',rol);}catch(e){} showApp(); }
+    else { err.textContent='Clave incorrecta.'; err.style.display='block'; $('loginPwd').value=''; }
+  }catch(e){ err.textContent='Error: '+e.message; err.style.display='block'; }
+  btn.disabled=false; btn.textContent='Ingresar';
+});
+$('loginPwd').addEventListener('keydown', e=>{ if(e.key==='Enter') $('btnLogin').click(); });
+$('userBadge').addEventListener('click', ()=>{ if(confirm('¿Cerrar sesión?')) logout(); });
+
+/* LOAD */
+async function loadData(){
+  $('mainContent').innerHTML='<div class="state-box"><div class="spinner"></div><h3>Cargando…</h3><p>Conectando con Google Sheets</p></div>';
+  try{
+    const j = await api({action:'list', clave});
+    if(!j.ok){ if(/Clave/.test(j.error||'')){ logout(); return; } throw new Error(j.error); }
+    rol = j.rol;
+    allRows = j.rows.map(mapRow).reverse();
+    selEstados.clear(); selAlerta=false; selEnc.clear();
+    buildBars(); applyFilters();
+  }catch(e){ $('mainContent').innerHTML='<div class="state-box"><div class="icon">⚠️</div><h3>Error al cargar</h3><p>'+esc(e.message)+'</p></div>'; }
+}
+
+/* FILTERS */
+function matchBase(c, q, ex){
+  const txt=[c.deudor,c.rut,c.cuenta,c.nid,c.encargado,c.obs,c.instr].join(' ').toLowerCase();
+  return (!q||txt.includes(q))
+    && (ex==='estado'||selEstados.size===0||selEstados.has(c.estado))
+    && (ex==='alerta'||!selAlerta||c.alerta)
+    && (ex==='enc'||selEnc.size===0||selEnc.has(c.encargado));
+}
+function getFiltered(){ const q=$('searchInput').value.toLowerCase(); return allRows.filter(c=>matchBase(c,q)); }
+function applyFilters(){ renderCards(getFiltered()); updateCounts(); }
+
+function buildBars(){
+  const bar=$('estadoBar'); bar.innerHTML='';
+  const mk=(label,color,key,toggle)=>{ const ch=document.createElement('div'); ch.className='chip'; ch.style.color=color; ch.style.setProperty('--cc',color); ch.dataset.key=key; ch.innerHTML='<span class="dot"></span>'+esc(label)+' <span class="n">0</span>'; ch.addEventListener('click',function(){toggle();this.classList.toggle('active');applyFilters();}); bar.appendChild(ch); };
+  Object.keys(ESTADOS).forEach(e=>mk(e,ESTADOS[e].color,'e:'+e,()=>{selEstados.has(e)?selEstados.delete(e):selEstados.add(e);}));
+  mk('ALERTA +'+DIAS_ALERTA+' DÍAS','#f43f5e','alerta',()=>{selAlerta=!selAlerta;});
+  const eb=$('encBar'); eb.innerHTML='';
+  const all=document.createElement('button'); all.className='abog-btn active'; all.dataset.key='all'; all.innerHTML='Todos <span class="n">0</span>';
+  all.addEventListener('click',()=>{selEnc.clear();applyFilters();}); eb.appendChild(all);
+  [...new Set(allRows.map(c=>c.encargado).filter(Boolean))].sort().forEach(a=>{
+    const b=document.createElement('button'); b.className='abog-btn'; b.dataset.enc=a; b.innerHTML=esc(a)+' <span class="n">0</span>';
+    b.addEventListener('click',()=>{selEnc.has(a)?selEnc.delete(a):selEnc.add(a);applyFilters();}); eb.appendChild(b);
+  });
+  $('dlEnc').innerHTML=[...new Set(allRows.map(c=>c.encargado).filter(Boolean))].sort().map(a=>'<option value="'+esc(a)+'">').join('');
+}
+function updateCounts(){
+  const q=$('searchInput').value.toLowerCase();
+  document.querySelectorAll('#estadoBar .chip').forEach(ch=>{
+    const k=ch.dataset.key; let n;
+    if(k==='alerta') n=allRows.filter(c=>matchBase(c,q,'alerta')&&c.alerta).length;
+    else { const e=k.slice(2); n=allRows.filter(c=>matchBase(c,q,'estado')&&c.estado===e).length; }
+    ch.querySelector('.n').textContent=n; ch.style.display=n>0||ch.classList.contains('active')?'':'none';
+  });
+  document.querySelectorAll('#encBar .abog-btn').forEach(b=>{
+    const all=b.dataset.key==='all';
+    const n=allRows.filter(c=>matchBase(c,q,'enc')&&(all||c.encargado===b.dataset.enc)).length;
+    b.querySelector('.n').textContent=n; b.classList.toggle('active', all?selEnc.size===0:selEnc.has(b.dataset.enc));
+    b.style.display=(all||n>0)?'':'none';
+  });
+}
+
+/* CARDS */
+function renderCards(list){
+  const main=$('mainContent');
+  if(!list.length){ main.innerHTML='<div class="state-box"><div class="icon">🔍</div><h3>Sin resultados</h3><p>Intenta con otro término o filtro.</p></div>'; return; }
+  main.innerHTML='';
+  list.forEach(c=>{
+    const s=ESTADOS[c.estado], card=document.createElement('div'); card.className='card'; card.style.setProperty('--sc',s.color);
+    const tg=(on,l)=>'<span class="tag'+(on?' on':'')+'">'+l+'</span>';
+    card.innerHTML='<div class="card-top"><div class="card-name">'+esc(c.deudor||'—')+'</div><div class="sbadge" style="background:'+s.bg+';color:'+s.color+'">'+c.estado+'</div></div>'
+      +(c.rut?'<div class="card-sub">RUT '+esc(c.rut)+(c.nid?' · ID '+esc(c.nid):'')+'</div>':'')
+      +(c.cuenta?'<div class="card-sub">Cuenta rel.: '+esc(c.cuenta)+'</div>':'')
+      +'<div class="card-tags">'+tg(c.f_mail,'✉ Mail')+tg(c.f_tel,'☎ Tel')+tg(c.f_wsp,'💬 WhatsApp')+tg(c.f_carta,'📮 Carta')
+      +(c.alerta?'<span class="tag warn">'+c.dias+' días sin gestión</span>':'')+'</div>'
+      +'<div class="card-foot"><span class="cfoot-l">'+esc(c.encargado||'Sin encargado')+'</span><span class="cfecha">'+(c.dias!==null?'Últ. gestión hace '+c.dias+' d':'')+'</span></div>';
+    card.addEventListener('click',()=>openDetail(c.row)); main.appendChild(card);
+  });
+}
+
+/* DETAIL */
+function openDetail(row){
+  const c=allRows.find(x=>x.row===row); if(!c) return; const s=ESTADOS[c.estado];
+  const di=(l,v,cls,full)=>'<div class="di'+(full?' full':'')+'"><div class="di-label">'+l+'</div><div class="di-val '+(cls||'')+'">'+(esc(v)||'—')+'</div></div>';
+  $('detailContent').innerHTML='<div class="sheet-title">'+esc(c.deudor||'Sin nombre')+'</div>'
+    +(c.rut?'<div class="sheet-sub">RUT '+esc(c.rut)+'</div>':'')
+    +'<div class="sheet-status" style="background:'+s.bg+';color:'+s.color+'">● '+c.estado+'</div>'
+    +(rol==='edit'?'<div class="sheet-actions"><button class="btn-edit" onclick="openForm('+c.row+')">✏️ Editar</button></div>':'')
+    +'<div class="sec-label">Identificación</div><div class="dgrid">'+di('N° Identificador',c.nid,'ac')+di('Fecha asignación',fmtF(c.f_asig))+di('Cuenta relacionada',c.cuenta,'',1)+di('Encargado',c.encargado,'',1)+'</div>'
+    +'<div class="sec-label">Gestiones</div><div class="dgrid">'+di('Contacto mail',fmtF(c.f_mail))+di('Contacto telefónico',fmtF(c.f_tel))+di('Contacto WhatsApp',fmtF(c.f_wsp))+di('Despacho carta',fmtF(c.f_carta))+'</div>'
+    +'<div class="sec-label">Instrucción</div><div class="dgrid"><div class="di full"><div class="di-label">Fecha</div><div class="di-val" style="margin-bottom:8px">'+(fmtF(c.f_instr)||'—')+'</div><div class="di-val mu">'+(esc(c.instr)||'—')+'</div></div></div>'
+    +'<div class="sec-label">Observaciones</div><div class="dgrid"><div class="di full"><div class="di-label">Fecha última obs.</div><div class="di-val" style="margin-bottom:8px">'+(fmtF(c.f_obs)||'—')+'</div><div class="di-val mu">'+(esc(c.obs)||'—')+'</div></div></div>';
+  openOverlay('detailOverlay');
+}
+
+/* FORM */
+const FMAP={f_deudor:'deudor',f_rut:'rut',f_nid:'nid',f_cuenta:'cuenta',f_asig:'f_asig',f_encargado:'encargado',f_mail:'f_mail',f_tel:'f_tel',f_wsp:'f_wsp',f_carta:'f_carta',f_obs:'obs',f_instr:'instr',f_fobs:'f_obs',f_finstr:'f_instr'};
+function openForm(row){
+  if(rol!=='edit') return;
+  const c = row==null ? null : allRows.find(x=>x.row===row);
+  editingRow = c ? c.row : null;
+  $('formTitle').textContent = c ? 'Editar deudor' : 'Nuevo deudor';
+  $('formSub').textContent = c ? (c.deudor||'') : 'Completa los datos del nuevo caso';
+  Object.keys(FMAP).forEach(id=>{ $(id).value = c ? (c[FMAP[id]]||'') : ''; });
+  if(!c) $('f_asig').value = new Date().toISOString().substring(0,10);
+  closeOverlay('detailOverlay'); openOverlay('formOverlay');
+}
+async function saveForm(){
+  const btn=$('btnSaveForm');
+  if(!$('f_deudor').value.trim()){ showToast('El deudor es obligatorio',true); return; }
+  btn.disabled=true; btn.textContent='⏳ Guardando…';
+  const body=new URLSearchParams(); body.append('clave',clave); body.append('row',editingRow!==null?String(editingRow):'');
+  const out={}; Object.keys(FMAP).forEach(id=>{ out[FMAP[id]==='deudor'?'deudor':id.replace('f_','')]=$(id).value; });
+  const P={deudor:'f_deudor',rut:'f_rut',nid:'f_nid',cuenta:'f_cuenta',f_asig:'f_asig',encargado:'f_encargado',f_mail:'f_mail',f_tel:'f_tel',f_wsp:'f_wsp',f_carta:'f_carta',obs:'f_obs',instr:'f_instr',f_obs:'f_fobs',f_instr:'f_finstr'};
+  Object.keys(P).forEach(k=>body.append(k,$(P[k]).value||''));
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+    showToast(editingRow!==null?'✅ Guardando cambios…':'✅ Agregando deudor…'); closeOverlay('formOverlay'); setTimeout(loadData,2000);
+  }catch(e){ showToast('Error de conexión: '+e.message,true); }
+  btn.disabled=false; btn.textContent='💾 Guardar';
+}
+
+/* CHART */
+function openChart(){
+  const base=getFiltered(), total=base.length;
+  $('chartFecha').textContent=new Date().toLocaleDateString('es-CL'); $('chartTotal').textContent='Deudores: '+total;
+  const rows=[
+    ...Object.keys(ESTADOS).map(e=>({l:e,col:ESTADOS[e].color,f:c=>c.estado===e})),
+    {l:'Alerta +'+DIAS_ALERTA+'d',col:'#f43f5e',f:c=>c.alerta},
+    {l:'Con mail',col:'#3b82f6',f:c=>!!c.f_mail},{l:'Con teléfono',col:'#8b5cf6',f:c=>!!c.f_tel},
+    {l:'Con WhatsApp',col:'#10b981',f:c=>!!c.f_wsp},{l:'Con carta',col:'#06b6d4',f:c=>!!c.f_carta},
+  ].map(r=>({...r,n:base.filter(r.f).length}));
+  const max=Math.max(1,...rows.map(r=>r.n)), box=$('chartBars'); box.innerHTML='';
+  rows.forEach(r=>{
+    const d=document.createElement('div'); d.className='brow';
+    d.innerHTML='<div class="blabel">'+esc(r.l)+'</div><div class="btrack"><div class="bfill" style="width:'+(r.n/max*100)+'%;background:'+r.col+'"></div></div><div class="bval">'+r.n+'</div>';
+    d.addEventListener('click',()=>{ closeOverlay('chartOverlay'); setTimeout(()=>renderCards(base.filter(r.f)),300); });
+    box.appendChild(d);
+  });
+  openOverlay('chartOverlay');
+}
+
+/* HELPERS */
+function openOverlay(id){ $(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeOverlay(id){ $(id).classList.remove('open'); document.body.style.overflow=''; }
+function showToast(m,err){ const t=$('toast'); t.textContent=m; t.className='toast'+(err?' error':''); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+$('btnReload').addEventListener('click',loadData);
+$('btnNuevo').addEventListener('click',()=>openForm(null));
+$('btnChart').addEventListener('click',openChart);
+$('btnSaveForm').addEventListener('click',saveForm);
+$('btnCloseDetail').addEventListener('click',()=>closeOverlay('detailOverlay'));
+$('btnCloseForm').addEventListener('click',()=>closeOverlay('formOverlay'));
+$('btnCloseChart').addEventListener('click',()=>closeOverlay('chartOverlay'));
+$('searchInput').addEventListener('input',applyFilters);
+['detailOverlay','formOverlay','chartOverlay'].forEach(id=>$(id).addEventListener('click',e=>{ if(e.target===e.currentTarget) closeOverlay(id); }));
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
+(function init(){
+  let k='',r=''; try{k=sessionStorage.getItem('cej_clave')||'';r=sessionStorage.getItem('cej_rol')||'';}catch(e){}
+  if(k&&r){ clave=k; rol=r; showApp(); } else showLogin();
+})();
+</script></body></html>
