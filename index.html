@@ -3,12 +3,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="CEJ IO"/>
+<meta name="apple-mobile-web-app-title" content="ACTIVOS IRREGULARES"/>
 <meta name="theme-color" content="#0b1220"/>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Cobranza Extrajudicial IO</title>
+<title>GESTION ACTIVOS IRREGULARES</title>
 <style>
 :root{--bg:#0b1220;--surface:#111c2d;--surface2:#172236;--border:#1e3050;--accent:#2dd4bf;--accent2:#f59e0b;--text:#e2eaf5;--muted:#64748b;--danger:#f43f5e;--success:#10b981;--font:Calibri,'Gill Sans',sans-serif;--mono:'Courier New',Courier,monospace;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -105,7 +105,7 @@ main{flex:1;padding:14px 14px calc(60px + var(--safe-bottom));overflow-y:auto}
 
 <div id="loginScreen">
   <div class="login-logo">📨</div>
-  <div class="login-title">Cobranza Extrajudicial IO</div>
+  <div class="login-title">GESTION ACTIVOS IRREGULARES</div>
   <div class="login-sub">Ingresa tu clave de acceso</div>
   <input type="password" id="loginPwd" class="login-input" placeholder="Clave de acceso" autocomplete="current-password"/>
   <button class="btn-login" id="btnLogin">Ingresar</button>
@@ -115,7 +115,7 @@ main{flex:1;padding:14px 14px calc(60px + var(--safe-bottom));overflow-y:auto}
 
 <div id="appHeader">
   <div class="header-top">
-    <div class="logo"><div class="logo-icon">📨</div><div class="logo-text">COBRANZA<span class="rolbadge" id="rolBadge"></span><br><span>EXTRAJUDICIAL IO</span></div></div>
+    <div class="logo"><div class="logo-icon">📨</div><div class="logo-text">GESTION ACTIVOS<span class="rolbadge" id="rolBadge"></span><br><span>IRREGULARES</span></div></div>
     <div class="header-actions">
       <button class="btn-icon" id="btnReload">🔄</button>
       <button class="btn-icon btn-add" id="btnNuevo">＋</button>
@@ -138,6 +138,10 @@ main{flex:1;padding:14px 14px calc(60px + var(--safe-bottom));overflow-y:auto}
     <div class="form-group"><label class="form-label">RUT</label><input class="form-input" id="f_rut" placeholder="12.345.678-9"/></div>
     <div class="form-group"><label class="form-label">N° Identificador</label><input class="form-input" id="f_nid"/></div>
     <div class="form-group full"><label class="form-label">Cuenta relacionada</label><input class="form-input" id="f_cuenta"/></div>
+    <div class="form-group"><label class="form-label">Deuda</label><input class="form-input" id="f_deuda" inputmode="numeric" placeholder="0"/></div>
+    <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="f_telefono" inputmode="tel"/></div>
+    <div class="form-group"><label class="form-label">Correo electrónico</label><input class="form-input" id="f_correo" type="email"/></div>
+    <div class="form-group"><label class="form-label">Dirección</label><input class="form-input" id="f_direccion"/></div>
     <div class="form-group"><label class="form-label">Fecha asignación</label><input class="form-input" type="date" id="f_asig"/></div>
     <div class="form-group"><label class="form-label">Encargado</label><input class="form-input" id="f_encargado" list="dlEnc"/><datalist id="dlEnc"></datalist></div>
   </div>
@@ -150,8 +154,8 @@ main{flex:1;padding:14px 14px calc(60px + var(--safe-bottom));overflow-y:auto}
   </div>
   <div class="form-section">Observaciones e instrucción</div>
   <div class="form-grid">
-    <div class="form-group full"><label class="form-label">Observaciones <small style="text-transform:none">(la fecha se actualiza sola al cambiar el texto)</small></label><textarea class="form-input" id="f_obs" rows="3"></textarea></div>
-    <div class="form-group full"><label class="form-label">Instrucción <small style="text-transform:none">(la fecha se actualiza sola al cambiar el texto)</small></label><textarea class="form-input" id="f_instr" rows="3"></textarea></div>
+    <div class="form-group full"><label class="form-label">Observaciones</label><textarea class="form-input" id="f_obs" rows="3"></textarea></div>
+    <div class="form-group full"><label class="form-label">Instrucción</label><textarea class="form-input" id="f_instr" rows="3"></textarea></div>
     <input type="hidden" id="f_fobs"/><input type="hidden" id="f_finstr"/>
   </div>
   <button class="btn-save" id="btnSaveForm">💾 Guardar</button>
@@ -177,10 +181,11 @@ const ESTADOS = {
 const $ = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fmtF = f => { if(!f) return ''; const p=String(f).substring(0,10).split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : f; };
+const fmtM = m => { const n=parseFloat(String(m).replace(/[^0-9.-]/g,'')); return isNaN(n)?String(m):'$'+n.toLocaleString('es-CL'); };
 const toD = f => f ? new Date(f+'T12:00:00') : null;
 
 function mapRow(r){
-  const v = r.v, o = {row:r.row, deudor:v[0], rut:v[1], cuenta:v[2], nid:v[3], f_asig:v[4], f_mail:v[5], f_tel:v[6], f_wsp:v[7], f_carta:v[8], f_obs:v[9], obs:v[10], instr:v[11], f_instr:v[12], encargado:v[13]};
+  const v = r.v, o = {row:r.row, deudor:v[0], rut:v[1], cuenta:v[2], nid:v[3], deuda:v[4], telefono:v[5], correo:v[6], direccion:v[7], f_asig:v[8], f_mail:v[9], f_tel:v[10], f_wsp:v[11], f_carta:v[12], f_obs:v[13], obs:v[14], instr:v[15], f_instr:v[16], encargado:v[17]};
   o.estado = o.instr.trim() ? 'Con instrucción' : (o.f_mail||o.f_tel||o.f_wsp||o.f_carta) ? 'En gestión' : 'Sin gestión';
   const fechas = [o.f_asig,o.f_mail,o.f_tel,o.f_wsp,o.f_carta,o.f_obs].filter(Boolean).sort();
   const ult = fechas.length ? toD(fechas[fechas.length-1]) : null;
@@ -231,7 +236,7 @@ async function loadData(){
 
 /* FILTERS */
 function matchBase(c, q, ex){
-  const txt=[c.deudor,c.rut,c.cuenta,c.nid,c.encargado,c.obs,c.instr].join(' ').toLowerCase();
+  const txt=[c.deudor,c.rut,c.cuenta,c.nid,c.telefono,c.correo,c.direccion,c.encargado,c.obs,c.instr].join(' ').toLowerCase();
   return (!q||txt.includes(q))
     && (ex==='estado'||selEstados.size===0||selEstados.has(c.estado))
     && (ex==='alerta'||!selAlerta||c.alerta)
@@ -280,7 +285,7 @@ function renderCards(list){
     const tg=(on,l)=>'<span class="tag'+(on?' on':'')+'">'+l+'</span>';
     card.innerHTML='<div class="card-top"><div class="card-name">'+esc(c.deudor||'—')+'</div><div class="sbadge" style="background:'+s.bg+';color:'+s.color+'">'+c.estado+'</div></div>'
       +(c.rut?'<div class="card-sub">RUT '+esc(c.rut)+(c.nid?' · ID '+esc(c.nid):'')+'</div>':'')
-      +(c.cuenta?'<div class="card-sub">Cuenta rel.: '+esc(c.cuenta)+'</div>':'')
+      +(c.cuenta?'<div class="card-sub">Cuenta rel.: '+esc(c.cuenta)+'</div>':'')+(c.deuda?'<div class="card-sub">Deuda: '+esc(fmtM(c.deuda))+'</div>':'')
       +'<div class="card-tags">'+tg(c.f_mail,'✉ Mail')+tg(c.f_tel,'☎ Tel')+tg(c.f_wsp,'💬 WhatsApp')+tg(c.f_carta,'📮 Carta')
       +(c.alerta?'<span class="tag warn">'+c.dias+' días sin gestión</span>':'')+'</div>'
       +'<div class="card-foot"><span class="cfoot-l">'+esc(c.encargado||'Sin encargado')+'</span><span class="cfecha">'+(c.dias!==null?'Últ. gestión hace '+c.dias+' d':'')+'</span></div>';
@@ -297,6 +302,7 @@ function openDetail(row){
     +'<div class="sheet-status" style="background:'+s.bg+';color:'+s.color+'">● '+c.estado+'</div>'
     +(rol==='edit'?'<div class="sheet-actions"><button class="btn-edit" onclick="openForm('+c.row+')">✏️ Editar</button></div>':'')
     +'<div class="sec-label">Identificación</div><div class="dgrid">'+di('N° Identificador',c.nid,'ac')+di('Fecha asignación',fmtF(c.f_asig))+di('Cuenta relacionada',c.cuenta,'',1)+di('Encargado',c.encargado,'',1)+'</div>'
+    +'<div class="sec-label">Deuda y contacto</div><div class="dgrid">'+di('Deuda',c.deuda?fmtM(c.deuda):'','ac')+di('Teléfono',c.telefono)+di('Correo electrónico',c.correo,'',1)+di('Dirección',c.direccion,'',1)+'</div>'
     +'<div class="sec-label">Gestiones</div><div class="dgrid">'+di('Contacto mail',fmtF(c.f_mail))+di('Contacto telefónico',fmtF(c.f_tel))+di('Contacto WhatsApp',fmtF(c.f_wsp))+di('Despacho carta',fmtF(c.f_carta))+'</div>'
     +'<div class="sec-label">Instrucción</div><div class="dgrid"><div class="di full"><div class="di-label">Fecha</div><div class="di-val" style="margin-bottom:8px">'+(fmtF(c.f_instr)||'—')+'</div><div class="di-val mu">'+(esc(c.instr)||'—')+'</div></div></div>'
     +'<div class="sec-label">Observaciones</div><div class="dgrid"><div class="di full"><div class="di-label">Fecha última obs.</div><div class="di-val" style="margin-bottom:8px">'+(fmtF(c.f_obs)||'—')+'</div><div class="di-val mu">'+(esc(c.obs)||'—')+'</div></div></div>';
@@ -304,7 +310,7 @@ function openDetail(row){
 }
 
 /* FORM */
-const FMAP={f_deudor:'deudor',f_rut:'rut',f_nid:'nid',f_cuenta:'cuenta',f_asig:'f_asig',f_encargado:'encargado',f_mail:'f_mail',f_tel:'f_tel',f_wsp:'f_wsp',f_carta:'f_carta',f_obs:'obs',f_instr:'instr',f_fobs:'f_obs',f_finstr:'f_instr'};
+const FMAP={f_deudor:'deudor',f_rut:'rut',f_nid:'nid',f_cuenta:'cuenta',f_deuda:'deuda',f_telefono:'telefono',f_correo:'correo',f_direccion:'direccion',f_asig:'f_asig',f_encargado:'encargado',f_mail:'f_mail',f_tel:'f_tel',f_wsp:'f_wsp',f_carta:'f_carta',f_obs:'obs',f_instr:'instr',f_fobs:'f_obs',f_finstr:'f_instr'};
 function openForm(row){
   if(rol!=='edit') return;
   const c = row==null ? null : allRows.find(x=>x.row===row);
@@ -321,7 +327,7 @@ async function saveForm(){
   btn.disabled=true; btn.textContent='⏳ Guardando…';
   const body=new URLSearchParams(); body.append('clave',clave); body.append('row',editingRow!==null?String(editingRow):'');
   const out={}; Object.keys(FMAP).forEach(id=>{ out[FMAP[id]==='deudor'?'deudor':id.replace('f_','')]=$(id).value; });
-  const P={deudor:'f_deudor',rut:'f_rut',nid:'f_nid',cuenta:'f_cuenta',f_asig:'f_asig',encargado:'f_encargado',f_mail:'f_mail',f_tel:'f_tel',f_wsp:'f_wsp',f_carta:'f_carta',obs:'f_obs',instr:'f_instr',f_obs:'f_fobs',f_instr:'f_finstr'};
+  const P={deudor:'f_deudor',rut:'f_rut',nid:'f_nid',cuenta:'f_cuenta',deuda:'f_deuda',telefono:'f_telefono',correo:'f_correo',direccion:'f_direccion',f_asig:'f_asig',encargado:'f_encargado',f_mail:'f_mail',f_tel:'f_tel',f_wsp:'f_wsp',f_carta:'f_carta',obs:'f_obs',instr:'f_instr',f_obs:'f_fobs',f_instr:'f_finstr'};
   Object.keys(P).forEach(k=>body.append(k,$(P[k]).value||''));
   try{
     await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
