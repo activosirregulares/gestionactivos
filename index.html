@@ -254,7 +254,7 @@ function buildBars(){
   Object.keys(ESTADOS).forEach(e=>mk(e,ESTADOS[e].color,'e:'+e,()=>{selEstados.has(e)?selEstados.delete(e):selEstados.add(e);}));
   mk('ALERTA +'+DIAS_ALERTA+' DÍAS','#ff3b30','alerta',()=>{selAlerta=!selAlerta;});
   mk('COBJU','#FFCE00','cobju',()=>{selCobju=!selCobju;});
-  const eb=$('encBar'); eb.innerHTML='';
+  const eb=$('encBar'); eb.innerHTML=''; eb.style.display=rol==='edit'?'':'none';
   const all=document.createElement('button'); all.className='abog-btn active'; all.dataset.key='all'; all.innerHTML='Todos <span class="n">0</span>';
   all.addEventListener('click',()=>{selEnc.clear();applyFilters();}); eb.appendChild(all);
   [...new Set(allRows.map(c=>c.encargado).filter(Boolean))].sort().forEach(a=>{
@@ -297,7 +297,7 @@ function renderCards(list){
       +(c.cliente?'<div class="card-sub">Cliente: '+esc(c.cliente)+'</div>':'')+(c.deuda?'<div class="card-sub">Deuda: '+esc(fmtUF(c.deuda))+'</div>':'')
       +'<div class="card-tags">'+tg(c.f_mail,'✉ Mail')+tg(c.f_tel,'☎ Tel')+tg(c.f_wsp,'💬 WhatsApp')+tg(c.f_carta,'📮 Carta')+(c.cobju==='SI'?'<span class="tag warn">COBJU</span>':'')
       +(c.alerta?'<span class="tag warn">'+c.dias+' días sin gestión</span>':'')+'</div>'
-      +'<div class="card-foot"><span class="cfoot-l">'+esc(c.encargado||'Sin encargado')+'</span><span class="cfecha">'+(c.dias!==null?'Últ. gestión hace '+c.dias+' d':'')+'</span></div>';
+      +'<div class="card-foot"><span class="cfoot-l">'+(rol==='edit'?esc(c.encargado||'Sin encargado'):'')+'</span><span class="cfecha">'+(c.dias!==null?'Últ. gestión hace '+c.dias+' d':'')+'</span></div>';
     card.addEventListener('click',()=>openDetail(c.row)); main.appendChild(card);
   });
 }
@@ -310,7 +310,7 @@ function openDetail(row){
     +(c.rut?'<div class="sheet-sub">RUT '+esc(c.rut)+'</div>':'')
     +'<div class="sheet-status" style="background:'+s.bg+';color:'+s.color+'">● '+c.estado+'</div>'
     +(rol==='edit'?'<div class="sheet-actions"><button class="btn-edit" onclick="openForm('+c.row+')">✏️ Editar</button></div>':'')
-    +'<div class="sec-label">Identificación</div><div class="dgrid">'+di('Cliente',c.cliente,'',1)+di('Fecha asignación',fmtF(c.f_asig))+di('COBJU',c.cobju)+di('Encargado',c.encargado,'',1)+'</div>'
+    +'<div class="sec-label">Identificación</div><div class="dgrid">'+di('Cliente',c.cliente,'',1)+di('Fecha asignación',fmtF(c.f_asig))+di('COBJU',c.cobju)+(rol==='edit'?di('Encargado',c.encargado,'',1):'')+'</div>'
     +'<div class="sec-label">Deuda y contacto</div><div class="dgrid">'+di('Deuda',c.deuda?fmtUF(c.deuda):'','ac')+di('Teléfono',c.telefono)+di('Correo electrónico',c.correo,'',1)+di('Dirección',c.direccion,'',1)+'</div>'
     +'<div class="sec-label">Gestiones</div><div class="dgrid">'+di('Contacto mail',fmtF(c.f_mail))+di('Contacto telefónico',fmtF(c.f_tel))+di('Contacto WhatsApp',fmtF(c.f_wsp))+di('Despacho carta',fmtF(c.f_carta))+'</div>'
     +'<div class="sec-label">Instrucción</div><div class="dgrid"><div class="di full"><div class="di-label">Fecha</div><div class="di-val" style="margin-bottom:8px">'+(fmtF(c.f_instr)||'—')+'</div><div class="di-val mu">'+(esc(c.instr)||'—')+'</div></div></div>'
